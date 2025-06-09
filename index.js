@@ -15,18 +15,8 @@ const cartRoutes = require('./src/routes/cart.routes');
 
 const app = express();
 
-// CORS config (change to your frontend domain after deploy)
-const allowedOrigins = ['http://localhost:3000', 'http://localhost:1200'];
-
 app.use(cors({
-  origin: function (origin, callback) {
-    // Postman se request karega to origin undefined hota hai
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error('CORS error: Origin not allowed'));
-    }
-  },
+  origin: 'http://localhost:3000',  // ya http://localhost:3000 during dev
   credentials: true,
 }));
 
