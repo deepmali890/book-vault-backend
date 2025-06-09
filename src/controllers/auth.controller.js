@@ -132,8 +132,9 @@ exports.login = async (req, res) => {
         // Send token as HTTP-only cookie
         res.cookie('token', token, {
             httpOnly: true,
-            secure: true,
-            sameSite: 'none',
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
+            path: '/',
             maxAge: 24 * 60 * 60 * 1000,
         });
         res.status(200).json({ message: 'Login successful!', token, userId: user._id, role: user.role, success: true })
