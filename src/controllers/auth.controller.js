@@ -131,7 +131,7 @@ exports.login = async (req, res) => {
 
         // Send token as HTTP-only cookie
         res.cookie('token', token, {
-            httpOnly: true,
+            httpOnly: false,
             secure: process.env.NODE_ENV === 'production',
             sameSite: 'strict',
             path: '/',
