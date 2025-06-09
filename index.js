@@ -41,6 +41,10 @@ app.use((error, req, res, next) => {
   res.status(statusCode).json({ message });
 });
 
+app.get('/', (req, res) => {
+  res.send('Welcome to the Book Store API!');
+});
+
 // Always bind to PORT — for both dev & Render
 const PORT = process.env.PORT || 1200;
 app.listen(PORT, () => {
