@@ -133,7 +133,7 @@ exports.login = async (req, res) => {
         res.cookie('token', token, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production', // only over HTTPS in prod
-            sameSite: 'strict',
+            sameSite: 'lax',
             maxAge: 24 * 60 * 60 * 1000, // 1 day in milliseconds
         });
         res.status(200).json({ message: 'Login successful!', token, userId: user._id, role: user.role, success: true })
