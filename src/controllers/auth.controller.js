@@ -119,7 +119,7 @@ exports.login = async (req, res) => {
         }
 
         if (!user.isVerified) {
-            return res.status(401).json({ message: 'Please verify your email before logging in..' });
+            return res.status(401).json({ message: 'Please verify your email before logging in..', success: false });
         }
 
         const isMatch = await bcrypt.compare(password, user.password);
@@ -136,7 +136,7 @@ exports.login = async (req, res) => {
             sameSite: 'strict',
             maxAge: 24 * 60 * 60 * 1000, // 1 day in milliseconds
         });
-        res.status(200).json({ message: 'Login successful!', token, userId: user._id, role: user.role })
+        res.status(200).json({ message: 'Login successful!', token, userId: user._id, role: user.role, success: true })
 
     } catch (error) {
         console.error('Login error:', error);
