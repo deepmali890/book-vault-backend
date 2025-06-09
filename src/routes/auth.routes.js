@@ -27,16 +27,7 @@ router.put('/edit-profile', protect, fileHandle, authController.updateProfile)
 // get user
 router.get('/user/:id', protect, authController.getUserById)
 
-// In auth.routes.js
-router.get('/me', protect, (req, res) => {
-    res.status(200).json({
-        status: 'success',
-        user: {
-            id: req.user._id,
-            email: req.user.email,
-            role: req.user.role,
-        }
-    });
-});
+router.get('/me', protect, authController.getCurrentUser);
+
 
 module.exports = router;

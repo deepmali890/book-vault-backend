@@ -317,3 +317,33 @@ exports.getUserById = async (req, res) => {
         res.status(500).json({ message: 'Internal server error' });
     }
 }
+
+
+// controllers/auth.controller.js
+exports.getCurrentUser = async (req, res) => {
+    const token = req.cookies.token;
+
+    if (!token) {
+        return res.status(401).json({ status: "fail", message: "No token" });
+    }
+
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const user = await User.findById(decoded.userId);
+
+        if (!user) return res.status(404).json({ status: "fail", message: "User not found" });
+
+        return res.status(200).json({
+            status: "success",
+            user: {
+                id: user._id,
+                email: user.email,
+                name: user.name,
+                isVerified: user.isVerified
+            }
+        });
+
+    } catch (err) {
+        return res.status(401).json({ status: "fail", message: "Invalid token" });
+    }
+};
