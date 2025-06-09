@@ -16,7 +16,7 @@ const cartRoutes = require('./src/routes/cart.routes');
 const app = express();
 
 // CORS config (change to your frontend domain after deploy)
-const allowedOrigins = ['http://localhost:5173', 'http://localhost:1200'];
+const allowedOrigins = ['http://localhost:3000', 'http://localhost:1200'];
 
 app.use(cors({
   origin: function (origin, callback) {
