@@ -16,7 +16,7 @@ const cartRoutes = require('./src/routes/cart.routes');
 const app = express();
 
 app.use(cors({
-  origin: 'http://localhost:3000',  // ya http://localhost:3000 during dev
+  origin: 'http://localhost:3000/', 
   credentials: true,
 }));
 
