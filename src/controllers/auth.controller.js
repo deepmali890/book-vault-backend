@@ -127,26 +127,26 @@ exports.login = async (req, res) => {
             return res.status(401).json({ message: 'Invalid credentials' });
         }
         // JWT time — create token with user id and role
-          // 5. Generate JWT Token
-    const token = jwt.sign(
-        {
-          userId: user._id,
-          role: user.role,
-        },
-        process.env.JWT_SECRET,
-        { expiresIn: '30d' }
-      );
-  
-      // 6. Set cookie
-      res.cookie('token', token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production', // True if live
-        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
-        path: '/',
-        maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
-      });
+        // 5. Generate JWT Token
+        const token = jwt.sign(
+            {
+                userId: user._id,
+                role: user.role,
+            },
+            process.env.JWT_SECRET,
+            { expiresIn: '30d' }
+        );
 
-        res.status(200).json({ message: 'Login successful!',  userId: user._id, role: user.role, success: true })
+        // 6. Set cookie
+        res.cookie('token', token, {
+            httpOnly: true,
+            secure: false, // Secure flag hatao localhost pe
+            sameSite: 'strict',
+            path: '/',
+            maxAge: 30 * 24 * 60 * 60 * 1000,
+        });
+
+        res.status(200).json({ message: 'Login successful!', userId: user._id, role: user.role, success: true })
 
     } catch (error) {
         console.error('Login error:', error);
@@ -156,10 +156,10 @@ exports.login = async (req, res) => {
 
 exports.logout = (req, res) => {
     // Clear the 'token' cookie by setting it to empty and expired
-    res.clearCookie('token',{
+    res.clearCookie('token', {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production', // True if live
-        sameSite: process.env.NODE_ENV === 'production'? 'none' :'strict',
+        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
         path: '/',
         maxAge: 0, // Expire immediately
     })
