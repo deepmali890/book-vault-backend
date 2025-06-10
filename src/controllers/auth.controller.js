@@ -410,7 +410,7 @@ exports.verifyToken = async (req, res) => {
             success: false
         });
     }
-};
+}; 
 
 
 // // controllers/auth.controller.js
