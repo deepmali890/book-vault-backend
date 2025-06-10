@@ -139,9 +139,9 @@ exports.login = async (req, res) => {
   
       // 6. Set cookie
       res.cookie('token', token, {
-        httpOnly: false,
+        httpOnly: true,
         secure: process.env.NODE_ENV === 'production', // True if live
-        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
         path: '/',
         maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
       });
@@ -156,12 +156,13 @@ exports.login = async (req, res) => {
 
 exports.logout = (req, res) => {
     // Clear the 'token' cookie by setting it to empty and expired
-    res.cookie('token', '', {
+    res.clearCookie('token',{
         httpOnly: true,
-        expires: new Date(0), // Expire immediately
-        secure: process.env.NODE_ENV === 'production', // Secure in prod
-        sameSite: 'lax', // Adjust per your CORS config
-    });
+        secure: process.env.NODE_ENV === 'production', // True if live
+        sameSite: process.env.NODE_ENV === 'production'? 'none' :'strict',
+        path: '/',
+        maxAge: 0, // Expire immediately
+    })
     res.status(200).json({ message: 'Logged out successfully' });
 }
 
