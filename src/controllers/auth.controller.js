@@ -127,17 +127,26 @@ exports.login = async (req, res) => {
             return res.status(401).json({ message: 'Invalid credentials' });
         }
         // JWT time — create token with user id and role
-        const token = jwt.sign({ userId: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '30d' })
-
-        // Send token as HTTP-only cookie
-        res.cookie('token', token, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict',
-            path: '/',
-            maxAge: 24 * 60 * 60 * 1000,
-        });
-        res.status(200).json({ message: 'Login successful!', token, userId: user._id, role: user.role, success: true })
+          // 5. Generate JWT Token
+    const token = jwt.sign(
+        {
+          userId: user._id,
+          role: user.role,
+        },
+        process.env.JWT_SECRET,
+        { expiresIn: '30d' }
+      );
+  
+      // 6. Set cookie
+      res.cookie('token', token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production', // True if live
+        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+        path: '/',
+        maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+      });
+      
+        res.status(200).json({ message: 'Login successful!',  userId: user._id, role: user.role, success: true })
 
     } catch (error) {
         console.error('Login error:', error);
