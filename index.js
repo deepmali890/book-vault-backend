@@ -15,10 +15,14 @@ const cartRoutes = require('./src/routes/cart.routes');
 
 const app = express();
 
-app.use(cors({
-  origin: 'http://localhost:3000', 
-  credentials: true,
-}));
+const corsOptions = {
+  origin: ['http://localhost:3000', 'https://your-nextjs-app-domain.com'], // Yahan apne frontend ke actual domains dalen
+  credentials: true, // Cookies ko cross-origin bhejane/receive karne ki permission deta hai
+  methods: ['GET', 'POST', 'PUT', 'DELETE'], // Allowed HTTP methods
+  allowedHeaders: ['Content-Type', 'Authorization'], // Allowed request headers
+};
+
+app.use(cors(corsOptions));
 
 // Middleware
 app.use(express.json());

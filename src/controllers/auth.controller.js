@@ -140,8 +140,8 @@ exports.login = async (req, res) => {
         // 6. Set cookie
         res.cookie('token', token, {
             httpOnly: true,
-            secure: false, // Secure flag hatao localhost pe
-            sameSite: 'strict',
+            secure: true, // Secure flag hatao localhost pe
+            sameSite: 'lax',
             path: '/',
             maxAge: 30 * 24 * 60 * 60 * 1000,
         });
