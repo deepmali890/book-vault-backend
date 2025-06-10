@@ -109,62 +109,103 @@ exports.verifyEmail = async (req, res) => {
 exports.login = async (req, res) => {
     const { email, password } = req.body;
 
+    // Input validation
     if (!email || !password) {
-        return res.status(400).json({ message: 'All fields are required' });
+        return res.status(400).json({
+            message: 'Email and password are required',
+            success: false
+        });
     }
     try {
+        // Find user by email
         const user = await User.findOne({ email });
         if (!user) {
-            return res.status(401).json({ message: 'User Not Found Please Register' });
+            return res.status(401).json({
+                message: 'User not found. Please register first.',
+                success: false
+            });
         }
 
+
+        // Check if user is verified
         if (!user.isVerified) {
-            return res.status(401).json({ message: 'Please verify your email before logging in..', success: false });
+            return res.status(401).json({
+                message: 'Please verify your email before logging in.',
+                success: false
+            });
         }
 
+        // Verify password
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
-            return res.status(401).json({ message: 'Invalid credentials' });
+            return res.status(401).json({
+                message: 'Invalid credentials',
+                success: false
+            });
         }
-        // JWT time — create token with user id and role
-        // 5. Generate JWT Token
+
+        // Generate JWT token
         const token = jwt.sign(
             {
                 userId: user._id,
                 role: user.role,
+                email: user.email
             },
             process.env.JWT_SECRET,
             { expiresIn: '30d' }
         );
 
-        // 6. Set cookie
-        res.cookie('token', token, {
+        // Set secure cookie
+        const cookieOptions = {
             httpOnly: true,
-            secure: true, // Secure flag hatao localhost pe
-            sameSite: 'lax',
+            secure: process.env.NODE_ENV === 'production', // Only secure in production
+            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax', // For cross-origin in production
             path: '/',
-            maxAge: 30 * 24 * 60 * 60 * 1000,
-        });
+            maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+        };
 
-        res.status(200).json({ message: 'Login successful!', userId: user._id, role: user.role, success: true })
+        res.cookie('token', token, cookieOptions);
+
+
+        // Send success response
+        res.status(200).json({
+            message: 'Login successful!',
+            userId: user._id,
+            role: user.role,
+            success: true
+        });
 
     } catch (error) {
         console.error('Login error:', error);
-        res.status(500).json({ message: 'Server error during login.' });
+        res.status(500).json({
+            message: 'Server error during login.',
+            success: false
+        });
     }
 }
+// Logout function
+exports.logout = async (req, res) => {
+    try {
+        // Clear the cookie
+        res.clearCookie('token', {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+            path: '/'
+        });
 
-exports.logout = (req, res) => {
-    // Clear the 'token' cookie by setting it to empty and expired
-    res.clearCookie('token', {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production', // True if live
-        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
-        path: '/',
-        maxAge: 0, // Expire immediately
-    })
-    res.status(200).json({ message: 'Logged out successfully' });
-}
+        res.status(200).json({
+            message: 'Logged out successfully',
+            success: true
+        });
+    } catch (error) {
+        console.error('Logout error:', error);
+        res.status(500).json({
+            message: 'Server error during logout',
+            success: false
+        });
+    }
+};
 
 exports.sendResetOtp = async (req, res) => {
     const { email } = req.body;
@@ -330,31 +371,73 @@ exports.getUserById = async (req, res) => {
 }
 
 
-// controllers/auth.controller.js
-exports.getCurrentUser = async (req, res) => {
-    const token = req.cookies.token;
-
-    if (!token) {
-        return res.status(401).json({ status: "fail", message: "No token" });
-    }
-
+// Verify token function (optional API endpoint)
+exports.verifyToken = async (req, res) => {
     try {
+        const token = req.cookies.token;
+
+        if (!token) {
+            return res.status(401).json({
+                message: 'No token found',
+                success: false
+            });
+        }
+
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        const user = await User.findById(decoded.userId);
+        const user = await User.findById(decoded.userId).select('-password');
 
-        if (!user) return res.status(404).json({ status: "fail", message: "User not found" });
+        if (!user) {
+            return res.status(401).json({
+                message: 'User not found',
+                success: false
+            });
+        }
 
-        return res.status(200).json({
-            status: "success",
+        res.status(200).json({
+            message: 'Token is valid',
             user: {
-                id: user._id,
+                userId: user._id,
                 email: user.email,
-                name: user.name,
-                isVerified: user.isVerified
-            }
+                role: user.role
+            },
+            success: true
         });
 
-    } catch (err) {
-        return res.status(401).json({ status: "fail", message: "Invalid token" });
+    } catch (error) {
+        console.error('Token verification error:', error);
+        res.status(401).json({
+            message: 'Invalid or expired token',
+            success: false
+        });
     }
 };
+
+
+// // controllers/auth.controller.js
+// exports.getCurrentUser = async (req, res) => {
+//     const token = req.cookies.token;
+
+//     if (!token) {
+//         return res.status(401).json({ status: "fail", message: "No token" });
+//     }
+
+//     try {
+//         const decoded = jwt.verify(token, process.env.JWT_SECRET);
+//         const user = await User.findById(decoded.userId);
+
+//         if (!user) return res.status(404).json({ status: "fail", message: "User not found" });
+
+//         return res.status(200).json({
+//             status: "success",
+//             user: {
+//                 id: user._id,
+//                 email: user.email,
+//                 name: user.name,
+//                 isVerified: user.isVerified
+//             }
+//         });
+
+//     } catch (err) {
+//         return res.status(401).json({ status: "fail", message: "Invalid token" });
+//     }
+// };
