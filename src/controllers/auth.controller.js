@@ -139,13 +139,13 @@ exports.login = async (req, res) => {
   
       // 6. Set cookie
       res.cookie('token', token, {
-        httpOnly: true,
+        httpOnly: false,
         secure: process.env.NODE_ENV === 'production', // True if live
         sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
         path: '/',
         maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
       });
-      
+
         res.status(200).json({ message: 'Login successful!',  userId: user._id, role: user.role, success: true })
 
     } catch (error) {
