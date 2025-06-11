@@ -2,6 +2,7 @@ const express = require('express');
 const authController = require('../controllers/auth.controller');
 const protect = require('../middlewares/authMiddleware');
 const fileHandle = require('../middlewares/multer');
+const User = require('../models/auth.model');
 
 const router = express.Router();
 

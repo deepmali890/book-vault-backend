@@ -21,19 +21,21 @@ exports.register = async (req, res) => {
             return res.status(400).json({ message: 'Email already registered. Please login.' });
         }
 
-        const salt = await bcrypt.genSalt(12)
-        const hashedPassword = await bcrypt.hash(password, salt)
+        const salt = await bcrypt.genSalt(12);
+        const hashedPassword = await bcrypt.hash(password, salt);
 
-        const emailVerificationToken = crypto.randomBytes(32).toString('hex')
-        const emailVerificationTokenExpires = Date.now() + 24 * 60 * 60 * 1000; // 24 hours
-
-        // Random avatar
+        // Random avatar assign
         const idx = Math.floor(Math.random() * 100) + 1;
         const randomAvatar = `https://avatar.iran.liara.run/public/${idx}.png`;
 
+        // Default values
         let assignedRole = 'user';
         let assignedSubscription = false;
+        let isVerified = false;
+        let emailVerificationToken = null;
+        let emailVerificationTokenExpires = null;
 
+        // Check if admin is creating
         const isAdminRequest = role || subscription !== undefined;
 
         if (isAdminRequest) {
@@ -48,6 +50,11 @@ exports.register = async (req, res) => {
             }
 
             assignedSubscription = subscription === true;
+            isVerified = true; // Admin created users are auto verified
+        } else {
+            // Normal user registration
+            emailVerificationToken = crypto.randomBytes(32).toString('hex');
+            emailVerificationTokenExpires = Date.now() + 24 * 60 * 60 * 1000; // 24h
         }
 
         const newUser = new User({
@@ -57,23 +64,28 @@ exports.register = async (req, res) => {
             password: hashedPassword,
             role: assignedRole,
             subscription: assignedSubscription,
-            isVerified: false,
+            isVerified,
             emailVerificationToken,
             emailVerificationTokenExpires,
-            profilePic: randomAvatar
+            profilePicture: randomAvatar
         });
-        await newUser.save()
-        await sendVerificationEmail(email, firstname, emailVerificationToken);
 
-        res.status(201).json({ message: 'Registration successful. Please check your email for verification.' })
+        await newUser.save();
 
+        // Only send verification email if it's user registration
+        if (!isAdminRequest) {
+            await sendVerificationEmail(email, firstname, emailVerificationToken);
+            return res.status(201).json({ message: 'Registration successful. Please check your email for verification.' });
+        }
 
+        res.status(201).json({ message: 'Member created successfully.' });
 
     } catch (error) {
         console.error('Registration error:', error);
         res.status(500).json({ message: 'Server error during registration.' });
     }
 }
+
 
 exports.verifyEmail = async (req, res) => {
     const { token, email } = req.query;
@@ -172,7 +184,8 @@ exports.login = async (req, res) => {
             message: 'Login successful!',
             userId: user._id,
             role: user.role,
-            success: true
+            success: true,
+            
         });
 
     } catch (error) {
