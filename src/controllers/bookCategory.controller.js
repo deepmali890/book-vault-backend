@@ -45,6 +45,23 @@ exports.CreateBookCategory = async (req, res) => {
 exports.getAllCategories = async (req, res) => {
     try {
         // Fetch all categories with status true (active ones only)
+        const categories = await BookCategory.find({ deleted_at: null }).sort({ createdAt: -1 })
+            .populate('createdBy.userId', 'role');
+        res.status(200).json({
+            success: true,
+            message: 'Categories fetched successfully',
+            data: categories
+        })
+
+    } catch (error) {
+        console.error('Get Categories Error:', error);
+        res.status(500).json({ success: false, message: 'Server error while fetching categories' });
+    }
+}
+
+exports.getActiveCategories  = async (req, res) => {
+    try {
+        // Fetch all categories with status true (active ones only)
         const categories = await BookCategory.find({ deleted_at: null, status: true }).sort({ createdAt: -1 })
             .populate('createdBy.userId', 'role');
         res.status(200).json({
@@ -58,6 +75,7 @@ exports.getAllCategories = async (req, res) => {
         res.status(500).json({ success: false, message: 'Server error while fetching categories' });
     }
 }
+
 
 exports.getCategoryById = async (req, res) => {
     try {
