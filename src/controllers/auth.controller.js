@@ -182,8 +182,12 @@ exports.login = async (req, res) => {
         // Send success response
         res.status(200).json({
             message: 'Login successful!',
-            userId: user._id,
-            role: user.role,
+            user: {
+                userId: user._id,
+                email: user.email,
+                role: user.role,
+                profilePicture: user.profilePicture
+              },
             success: true,
             
         });
