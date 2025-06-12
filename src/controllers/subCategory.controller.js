@@ -71,6 +71,26 @@ exports.createSubCategory = async (req, res) => {
 
 exports.getAllSubCategories = async (req, res) => {
     try {
+        const sunCategories = await SubCategory.find({ deleted_at: null, status:true })
+            .populate('parentCategory', 'name')
+            .sort({ createdAt: -1 });
+        res.status(200).json({
+            success: true,
+            message: "Sub-categories fetched successfully",
+            data: sunCategories
+        });
+    } catch (error) {
+        console.error("Get All SubCategories Error:", error);
+        res.status(500).json({
+            success: false,
+            message: "Server error while fetching sub-categories"
+        });
+
+    }
+}
+
+exports.getAllActiveSubCategories = async (req, res) => {
+    try {
         const sunCategories = await SubCategory.find({ deleted_at: null })
             .populate('parentCategory', 'name')
             .sort({ createdAt: -1 });

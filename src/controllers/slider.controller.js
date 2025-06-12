@@ -46,6 +46,16 @@ exports.createSlider = async (req, res) => {
 
 exports.getSliders = async (req, res) => {
     try {
+        const sliders = await Slider.find({ deleted_at: null }).sort({ order: 1 });
+        res.status(200).json({ success: true, sliders });
+    } catch (error) {
+        console.error("Get Sliders Error:", error);
+        res.status(500).json({ message: "Server error while fetching sliders" });
+    }
+};
+
+exports.getActiveSliders = async (req, res) => {
+    try {
         const sliders = await Slider.find({ deleted_at: null, status: true }).sort({ order: 1 });
         res.status(200).json({ success: true, sliders });
     } catch (error) {

@@ -70,7 +70,7 @@ exports.createBook = async (req, res) => {
 
 exports.getAllBooks = async (req, res) => {
     try {
-        const books = await Book.find({ deleted_at: null, status: true })
+        const books = await Book.find({ deleted_at: null })
             .populate("bookCategory", "name")
             .populate("subCategory", "name")
             .populate("createdBy.userId", "name email")
@@ -87,6 +87,26 @@ exports.getAllBooks = async (req, res) => {
         console.error("Get All Books Error:", error);
         res.status(500).json({ success: false, message: "Server error while fetching books" });
 
+    }
+}
+
+exports.getActiveBooks = async (req, res) => {
+    try {
+        const books = await Book.find({ deleted_at: null, status: true })
+            .populate("bookCategory", "name")
+            .populate("subCategory", "name")
+            .populate("createdBy.userId", "name email")
+            .sort({ createdAt: -1 });
+
+        res.status(200).json({
+            success: true,
+            message: "Books fetched successfully",
+            count: books.length,
+            data: books
+        })
+    } catch (error) {
+        console.error("Get Active Books Error:", error);
+        res.status(500).json({ success: false, message: "Server error while fetching active books" });
     }
 }
 
