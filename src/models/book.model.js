@@ -17,11 +17,6 @@ const episodeSchema = new mongoose.Schema({
 const bookSchema = new mongoose.Schema({
     name: { type: String, required: true },
     description: { type: String },
-    bookCategory: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'category',
-        required: true
-    },
     subCategory: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'subCategory',
