@@ -11,6 +11,7 @@ router.post('/create',protect, restrictTo('admin', 'moderator'),fileHandle, subC
 router.get('/subcategories/search', protect, subCategoryController.searchSubCategories)
 router.get('/deletedSubCategory', protect, restrictTo('admin', 'moderator'), subCategoryController.getDeletedSubCategories)
 router.get('/all',protect,  subCategoryController.getAllSubCategories)
+router.get('/activeSubCategory',protect,  subCategoryController.getAllActiveSubCategories)
 router.get('/:id',protect,  subCategoryController.getSubCategoryById)
 
 // change status and feature
