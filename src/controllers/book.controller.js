@@ -4,29 +4,43 @@ const Book = require("../models/book.model");
 
 exports.createBook = async (req, res) => {
     try {
-        const { name, subCategory, author, price, mrp, accessType, featured, status, availableForOrder } = req.body;
+        const {
+            name,
+            subCategory,
+            author,
+            price,
+            mrp,
+            accessType,
+            featured,
+            status,
+            availableForOrder
+        } = req.body;
+
+        // ✅ Type Conversion: string => boolean
+        const featuredBool = featured === 'true';
+        const statusBool = status === 'true';
+        const availableForOrderBool = availableForOrder === 'true';
 
         const coverImage = req.files && req.files.coverImage ? req.files.coverImage[0] : null;
         const bookPdf = req.files && req.files.bookPdf ? req.files.bookPdf[0] : null;
 
-        let coverImageUrl = "", bookPdfUrl = "";
+        let coverImageUrl = "", bookPdfUrl = "", bookPdfPublicId = "";
 
-        // upload cover image
+        // ✅ Upload cover image
         if (coverImage) {
             const fileUri = getDataUri(coverImage);
             const result = await cloudinary.uploader.upload(fileUri, { folder: "books/cover" });
             coverImageUrl = result.secure_url;
         }
 
-        // ✅ Upload PDF (IMPORTANT FIXES BELOW)
+        // ✅ Upload PDF (IMPORTANT FIX)
         if (bookPdf) {
             const fileUri = getDataUri(bookPdf);
-
             const result = await cloudinary.uploader.upload(fileUri, {
                 folder: "books/pdf",
-                resource_type: "raw", // raw needed for non-image files
-                public_id: `book_${Date.now()}`, // no `.pdf` needed here
-                format: "pdf", // ✅ force the format
+                resource_type: "raw", // raw for non-image files
+                public_id: `book_${Date.now()}`,
+                format: "pdf",
                 use_filename: true,
                 unique_filename: false,
             });
@@ -50,11 +64,12 @@ exports.createBook = async (req, res) => {
             price,
             mrp,
             accessType,
-            featured: featured ?? false,
-            status: status ?? true,
-            availableForOrder: availableForOrder ?? true,
+            featured: featuredBool,
+            status: statusBool,
+            availableForOrder: availableForOrderBool,
             createdBy
         });
+
         res.status(201).json({
             success: true,
             message: "Book created successfully",
@@ -66,6 +81,7 @@ exports.createBook = async (req, res) => {
         res.status(500).json({ success: false, message: "Server error while creating book" });
     }
 }
+
 
 exports.getAllBooks = async (req, res) => {
     try {
