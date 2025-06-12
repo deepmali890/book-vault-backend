@@ -16,13 +16,16 @@ const cartRoutes = require('./src/routes/cart.routes');
 const app = express();
 
 const corsOptions = {
-  origin: ['http://localhost:5173', 'https://book-vault-admin.netlify.app/'], // Yahan apne frontend ke actual domains dalen
-  credentials: true, // Cookies ko cross-origin bhejane/receive karne ki permission deta hai
-  methods: ['GET', 'POST', 'PUT', 'DELETE'], // Allowed HTTP methods
-  allowedHeaders: ['Content-Type', 'Authorization'], // Allowed request headers
+  origin: ['http://localhost:5173', 'https://book-vault-admin.netlify.app'],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
 };
 
 app.use(cors(corsOptions));
+
+// Isko add kar:
+app.options('*', cors(corsOptions));
 
 // Middleware
 app.use(express.json());
