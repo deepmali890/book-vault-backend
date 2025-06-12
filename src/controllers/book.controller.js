@@ -4,7 +4,7 @@ const Book = require("../models/book.model");
 
 exports.createBook = async (req, res) => {
     try {
-        const { name, bookCategory, subCategory, author, price, mrp, accessType, featured, status, availableForOrder } = req.body;
+        const { name, subCategory, author, price, mrp, accessType, featured, status, availableForOrder } = req.body;
 
         const coverImage = req.files && req.files.coverImage ? req.files.coverImage[0] : null;
         const bookPdf = req.files && req.files.bookPdf ? req.files.bookPdf[0] : null;
@@ -42,7 +42,6 @@ exports.createBook = async (req, res) => {
 
         const book = await Book.create({
             name,
-            bookCategory,
             subCategory,
             author,
             coverImage: coverImageUrl,
