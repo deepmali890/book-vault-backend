@@ -16,7 +16,7 @@ const cartRoutes = require('./src/routes/cart.routes');
 const app = express();
 
 const corsOptions = {
-  origin: ['http://localhost:5173', 'https://book-vault-admin.netlify.app'],
+  origin: ['http://localhost:5173', 'https://book-vault-admin.netlify.app', 'http://localhost:3000'],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization'],
