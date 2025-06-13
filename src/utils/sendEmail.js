@@ -1,7 +1,7 @@
 const transporter = require("../config/mailer");
 
 const sendVerificationEmail = async (to, name, token) => {
-    const verificationUrl = `${process.env.FRONTEND_URL}/verify-email?token=${token}&email=${to}`;
+     const verificationUrl = `${process.env.FRONTEND_URL}/models/verifyemail?token=${token}&email=${to}`;
 
     const mailOptions = {
         from: `"Book Vault" <${process.env.EMAIL_USER}>`,
